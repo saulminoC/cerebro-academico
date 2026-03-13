@@ -5,15 +5,19 @@
 }
 
 :root {
-  background-color: #000; /* Fondo base negro para evitar parpadeos blancos */
+  background-color: #000;
+  color-scheme: light dark;
 }
 
 body {
   margin: 0;
-  @apply antialiased text-slate-900 bg-white;
+  /* El suavizado de fuente es clave para el look Pro */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply bg-white text-slate-900 font-sans;
 }
 
-/* Scrollbar minimalista */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+/* Para que el scroll sea suave al navegar */
+html {
+  scroll-behavior: smooth;
+}

@@ -3,97 +3,105 @@ import { Link } from 'react-router-dom';
 
 const Inicio: React.FC = () => {
   return (
-    <div className="w-full min-h-screen bg-white font-sans">
+    <div className="w-full min-h-screen bg-white">
       
-      {/* --- HERO SECTION: DARK PREMIUM --- */}
-      <section className="relative w-full h-[95vh] bg-[#020617] flex flex-col items-center justify-center px-6 overflow-hidden">
-        {/* Imagen fija con opacidad baja (Efecto elegante) */}
+      {/* --- HERO: ARCHITECTURAL DESIGN --- */}
+      <section className="relative h-[100vh] w-full flex items-center bg-[#020617] overflow-hidden">
+        {/* Imagen de fondo con Parallax Sutil */}
         <div 
-          className="absolute inset-0 opacity-20 bg-fixed bg-cover bg-center"
-          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070')` }}
+          className="absolute inset-0 z-0 opacity-25 bg-fixed bg-cover bg-center grayscale-[50%]"
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070')` }}
         />
         
-        {/* Contenido Hero */}
-        <div className="relative z-10 w-full max-w-5xl text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 mb-8 border border-slate-800 bg-slate-900/50 rounded-full">
-            <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-pulse" />
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">SISTEMA DE ANÁLISIS ACADÉMICO</span>
-          </div>
+        {/* Overlay de gradiente para dar profundidad */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
-          <h1 className="text-5xl md:text-8xl font-extrabold text-white tracking-[-0.04em] leading-[0.9] mb-8">
-            Tu historial <br />
-            <span className="text-slate-500">hecho estrategia.</span>
-          </h1>
+        <div className="relative z-20 container mx-auto px-6 md:px-12">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-3 px-3 py-1 mb-10 border border-slate-800 bg-slate-900/40 rounded-full backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_#22d3ee]" />
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Built for FCC BUAP</span>
+            </div>
 
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-            La herramienta de gestión curricular más avanzada para la FCC. 
-            Optimiza tu promedio, visualiza seriaciones y proyecta tu graduación.
-          </p>
+            <h1 className="text-6xl md:text-8xl lg:text-[100px] font-bold text-white tracking-[-0.05em] leading-[0.85] mb-10">
+              Analítica <br />
+              <span className="text-slate-500">académica integral.</span>
+            </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              to="/login" 
-              className="px-8 py-4 bg-white text-black rounded-lg font-bold text-sm hover:bg-slate-200 transition-all uppercase tracking-widest"
-            >
-              Comenzar análisis
-            </Link>
-            <Link 
-              to="/funciones" 
-              className="px-8 py-4 bg-transparent text-white border border-slate-800 rounded-lg font-bold text-sm hover:bg-white/5 transition-all uppercase tracking-widest"
-            >
-              Documentación
-            </Link>
+            <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mb-12 leading-relaxed font-normal">
+              SSAAI transforma tu historial en una ventaja estratégica. 
+              Proyección de promedios, rutas críticas y gestión de seriación en un solo lugar.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-5">
+              <Link 
+                to="/login" 
+                className="px-10 py-4 bg-white text-black rounded-sm font-bold text-sm hover:bg-cyan-400 transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                Analizar Kardex
+              </Link>
+              <Link 
+                to="/funciones" 
+                className="px-10 py-4 bg-transparent text-white border border-slate-700 rounded-sm font-bold text-sm hover:border-white transition-all duration-300 uppercase tracking-widest flex items-center justify-center"
+              >
+                Capacidades
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Indicador de scroll sutil */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[1px] h-12 bg-gradient-to-b from-transparent to-slate-700" />
+        {/* Scroll hint vertical */}
+        <div className="absolute bottom-12 right-12 hidden lg:block">
+            <div className="flex flex-col items-center gap-4">
+                <span className="[writing-mode:vertical-lr] text-[10px] text-slate-500 uppercase tracking-widest font-bold">Scroll to explore</span>
+                <div className="w-[1px] h-20 bg-gradient-to-b from-slate-500 to-transparent" />
+            </div>
+        </div>
       </section>
 
-      {/* --- SECCIÓN 2: CLEAN CONTENT (Texto tapa imagen al subir) --- */}
-      <section className="relative z-20 bg-white py-32 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-slate-100 pt-12">
+      {/* --- SECTION 2: THE GRID (Swiss Style) --- */}
+      <section className="relative z-30 bg-white py-32 px-6 md:px-12 rounded-t-[32px] -mt-8 shadow-2xl">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             
-            <div className="md:col-span-4">
-              <span className="text-cyan-600 font-bold text-sm tracking-tighter uppercase">Capacidades</span>
-              <h2 className="text-3xl font-bold text-slate-900 mt-4 leading-tight">Analítica de precisión para tu carrera.</h2>
+            {/* Header de la sección */}
+            <div className="lg:col-span-4 sticky top-32 h-fit">
+              <h2 className="text-sm font-black text-cyan-600 uppercase tracking-[0.2em] mb-6">Eficiencia</h2>
+              <h3 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+                Diseñado para la <br /> nueva era escolar.
+              </h3>
             </div>
 
-            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-12">
-              <div className="space-y-4">
-                <div className="h-[1px] w-12 bg-slate-200" />
-                <h3 className="font-bold text-slate-900 text-lg">Proyección Dinámica</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">Calcula escenarios hipotéticos de promedios ponderados basados en tu histórico real de Autoservicios.</p>
-              </div>
-              <div className="space-y-4">
-                <div className="h-[1px] w-12 bg-slate-200" />
-                <h3 className="font-bold text-slate-900 text-lg">Mapa de Seriación</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">Identifica materias críticas que bloquean tu avance y encuentra la ruta más corta al egreso.</p>
-              </div>
-              <div className="space-y-4">
-                <div className="h-[1px] w-12 bg-slate-200" />
-                <h3 className="font-bold text-slate-900 text-lg">Parser Inteligente</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">Extracción de datos local y privada. Tu información nunca sale de tu navegador.</p>
-              </div>
-              <div className="space-y-4">
-                <div className="h-[1px] w-12 bg-slate-200" />
-                <h3 className="font-bold text-slate-900 text-lg">Reportes PDF</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">Genera resúmenes ejecutivos de tu avance para trámites administrativos o tutorías.</p>
-              </div>
+            {/* Grid de beneficios estilo minimalista */}
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-20">
+              <Benefit 
+                title="Integración de Datos" 
+                desc="Extracción automática de información directamente desde tu PDF de Autoservicios sin comprometer tu privacidad."
+              />
+              <Benefit 
+                title="Simulación Ponderada" 
+                desc="Calcula con precisión milimétrica cómo cada materia impactará en tu promedio global antes de cargar materias."
+              />
+              <Benefit 
+                title="Alertas de Seriación" 
+                desc="Visualiza las dependencias entre materias para evitar cuellos de botella que retrasen tu graduación."
+              />
+              <Benefit 
+                title="Exportación Pro" 
+                desc="Genera reportes técnicos de tu avance académico listos para presentar en tutorías o procesos administrativos."
+              />
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* --- SECCIÓN 3: CTA FINAL --- */}
-      <section className="bg-slate-50 py-32 px-6 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900 mb-6">Toma el control de tu progreso hoy.</h2>
-          <p className="text-slate-500 mb-10">Sin registros complicados, sin costos ocultos. Solo tu Kardex y SSAAI.</p>
-          <button className="px-10 py-5 bg-black text-white rounded-full font-bold hover:bg-slate-800 transition-all">
-            Empezar gratis
+      {/* --- CTA: MINIMALIST FINISH --- */}
+      <section className="bg-slate-50 py-40 px-6 border-t border-slate-100 text-center">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-slate-950 mb-10">Optimiza tu futuro.</h2>
+          <p className="text-lg text-slate-500 mb-12 font-medium">Únete a los estudiantes de la FCC que ya están tomando decisiones basadas en datos reales.</p>
+          <button className="group relative px-12 py-5 bg-black text-white text-sm font-black uppercase tracking-widest rounded-full overflow-hidden transition-all hover:bg-slate-800">
+            <span className="relative z-10">Empezar ahora</span>
           </button>
         </div>
       </section>
@@ -101,5 +109,14 @@ const Inicio: React.FC = () => {
     </div>
   );
 };
+
+// Componente para los beneficios (Mantiene el código limpio)
+const Benefit = ({ title, desc }: { title: string, desc: string }) => (
+  <div className="group">
+    <div className="h-[1px] w-full bg-slate-100 mb-8 transition-all group-hover:bg-cyan-500 duration-500" />
+    <h4 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">{title}</h4>
+    <p className="text-slate-500 leading-relaxed text-sm md:text-base">{desc}</p>
+  </div>
+);
 
 export default Inicio;
