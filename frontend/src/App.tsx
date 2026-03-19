@@ -7,14 +7,16 @@ import Contacto from './pages/Contacto';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
+import MapaCurricular from './pages/MapaCurricular';
+import RutasOptativas from './pages/RutasOptativas';
 
 // --- COMPONENTE AUXILIAR PARA CONTROLAR EL NAVBAR ---
-// Esto revisa en qué ruta estamos y decide si dibuja el Navbar o no.
 const RutasConLayout = () => {
   const location = useLocation();
   
   // Lista de rutas donde NO queremos el Navbar público
-  const rutasSinNavbar = ['/login', '/registro', '/dashboard'];
+  // AQUÍ ESTÁ EL CAMBIO: Ya dice '/rutas'
+  const rutasSinNavbar = ['/login', '/registro', '/dashboard', '/mapa-curricular', '/rutas'];
   const mostrarNavbar = !rutasSinNavbar.includes(location.pathname);
 
   return (
@@ -26,12 +28,14 @@ const RutasConLayout = () => {
         <Route path="/funciones" element={<Funciones />} />
         <Route path="/contacto" element={<Contacto />} />
         
-        {/* Rutas sin Navbar */}
+        {/* Rutas del Sistema (Sin Navbar) */}
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
-        
-        {/* ¡Aquí está tu Dashboard! */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/mapa-curricular" element={<MapaCurricular />} />
+        
+        {/* AQUÍ ESTÁ EL OTRO CAMBIO: path="/rutas" */}
+        <Route path="/rutas" element={<RutasOptativas />} />
       </Routes>
     </>
   );

@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
           <SidebarLink title="Mapa Curricular" icon={<MapIcon />} />
           
           <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-8">Planificación</p>
-          <SidebarLink title="Rutas Optativas" icon={<TargetIcon />} />
+          <SidebarLink title="Rutas Optativas" icon={<TargetIcon />} to="/rutas-optativas" />
           <SidebarLink title="Tutorías Académicas" icon={<UsersIcon />} />
         </nav>
 
