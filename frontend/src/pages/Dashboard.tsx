@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
+  // Estado para controlar el sidebar en móviles
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const materiasSugeridas = [
     { clave: 'IACC 001', nombre: 'Inteligencia Artificial I', tipo: 'Optativa', ruta: 'IA' },
     { clave: 'CCYT 005', nombre: 'Criptografía Aplicada', tipo: 'Optativa', ruta: 'Seguridad' },
@@ -11,18 +14,35 @@ const Dashboard: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-[#F9FAFB] flex font-sans text-slate-900 overflow-hidden selection:bg-cyan-100">
       
+      {/* Overlay oscuro para móviles cuando el sidebar está abierto */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* --- SIDEBAR MINIMALISTA --- */}
-      <aside className="w-[260px] bg-[#F9FAFB] border-r border-slate-200/60 flex flex-col py-8 px-4 sticky top-0 h-screen">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 mb-10 px-3 group">
-          <div className="w-8 h-8 bg-slate-950 rounded-[8px] flex items-center justify-center transition-transform group-hover:-rotate-3">
-            <span className="text-white font-bold text-lg">S</span>
-          </div>
-          <span className="text-[17px] font-bold tracking-tight text-slate-900">SSAAI</span>
-        </Link>
+      <aside className={`
+        fixed md:sticky top-0 left-0 h-screen z-50 w-[260px] bg-[#F9FAFB] border-r border-slate-200/60 
+        flex flex-col py-8 px-4 transition-transform duration-300
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Logo y Botón de cerrar en móvil */}
+        <div className="flex items-center justify-between mb-10 px-3">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 bg-slate-950 rounded-[8px] flex items-center justify-center transition-transform group-hover:-rotate-3">
+              <span className="text-white font-bold text-lg">S</span>
+            </div>
+            <span className="text-[17px] font-bold tracking-tight text-slate-900">SSAAI</span>
+          </Link>
+          <button className="md:hidden text-slate-400 hover:text-slate-900" onClick={() => setIsSidebarOpen(false)}>
+            <XIcon />
+          </button>
+        </div>
 
         {/* Navegación Principal */}
-        <nav className="space-y-1 flex-1">
+        <nav className="space-y-1 flex-1 overflow-y-auto">
           <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-4">Panel Principal</p>
           <SidebarLink title="Mi Avance" icon={<BarChartIcon />} active />
           <SidebarLink title="Análisis de Kardex" icon={<DocumentIcon />} />
@@ -36,7 +56,7 @@ const Dashboard: React.FC = () => {
         {/* Perfil Inferior */}
         <div className="mt-auto pt-6 px-3">
           <div className="flex items-center gap-3 mb-4 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-slate-200/60 shadow-sm hover:shadow-md hover:shadow-slate-200/20">
-            <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-sm">
+            <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-sm shrink-0">
               JD
             </div>
             <div className="flex-1 overflow-hidden">
@@ -51,28 +71,37 @@ const Dashboard: React.FC = () => {
       </aside>
 
       {/* --- ÁREA PRINCIPAL --- */}
-      <main className="flex-1 overflow-y-auto bg-white rounded-tl-[32px] border-l border-t border-slate-200/60 shadow-[-10px_0_30px_rgb(0,0,0,0.02)] my-2 mr-2">
-        <div className="p-8 md:p-12 max-w-6xl mx-auto">
+      <main className="flex-1 overflow-y-auto bg-white md:rounded-tl-[32px] md:border-l md:border-t border-slate-200/60 md:shadow-[-10px_0_30px_rgb(0,0,0,0.02)] md:my-2 md:mr-2">
+        <div className="p-6 md:p-12 max-w-6xl mx-auto">
           
           {/* Header */}
-          <header className="flex justify-between items-end mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Estado: Regular</p>
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-12">
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <button 
+                className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <MenuIcon />
+              </button>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Estado: Regular</p>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Resumen Académico</h1>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">Resumen Académico</h1>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
+
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 md:flex-none">
                 <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input 
                   type="text" 
-                  placeholder="Buscar clave o materia..." 
-                  className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-5 py-2.5 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-all font-medium placeholder:text-slate-400" 
+                  placeholder="Buscar clave..." 
+                  className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-5 py-2.5 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-all font-medium placeholder:text-slate-400" 
                 />
               </div>
-              <button className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors relative">
+              <button className="w-10 h-10 shrink-0 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors relative">
                 <BellIcon />
                 <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
               </button>
@@ -82,19 +111,19 @@ const Dashboard: React.FC = () => {
           {/* GRID DE ESTADÍSTICAS */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {/* Card 1: Promedio */}
-            <div className="bg-white p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+            <div className="bg-white p-6 md:p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
               <div className="flex justify-between items-start mb-6">
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Promedio Ponderado</p>
                 <div className="p-2 bg-slate-50 rounded-lg"><TrendingUpIcon /></div>
               </div>
-              <div className="flex items-end gap-3">
-                <h3 className="text-5xl font-bold tracking-tighter text-slate-900 leading-none">8.92</h3>
+              <div className="flex items-end gap-3 flex-wrap">
+                <h3 className="text-4xl md:text-5xl font-bold tracking-tighter text-slate-900 leading-none">10</h3>
                 <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mb-1">+0.15 este periodo</span>
               </div>
             </div>
 
             {/* Card 2: Créditos */}
-            <div className="bg-white p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+            <div className="bg-white p-6 md:p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
               <div className="flex justify-between items-start mb-6">
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avance de Créditos</p>
                 <div className="p-2 bg-slate-50 rounded-lg"><PieChartIcon /></div>
@@ -111,12 +140,12 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Card 3: Estatus */}
-            <div className="bg-white p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+            <div className="bg-white p-6 md:p-7 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
               <div className="flex justify-between items-start mb-6">
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Plan de Estudios</p>
                 <div className="p-2 bg-slate-50 rounded-lg"><BookIcon /></div>
               </div>
-              <h3 className="text-2xl font-bold tracking-tight text-slate-900 mb-1">Minerva Ciencias</h3>
+              <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-1">Minerva Ciencias</h3>
               <p className="text-sm text-slate-500 font-medium">Facultad de Ciencias de la Computación.</p>
             </div>
           </section>
@@ -125,7 +154,7 @@ const Dashboard: React.FC = () => {
           <section className="grid grid-cols-1 xl:grid-cols-5 gap-6">
             
             {/* Zona de Carga */}
-            <div className="xl:col-span-2 bg-slate-50/50 p-8 rounded-[20px] border border-dashed border-slate-300 flex flex-col items-center justify-center text-center group hover:bg-slate-50 transition-colors">
+            <div className="xl:col-span-2 bg-slate-50/50 p-8 md:p-10 rounded-[20px] border border-dashed border-slate-300 flex flex-col items-center justify-center text-center group hover:bg-slate-50 transition-colors">
               <div className="w-14 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
                 <UploadCloudIcon />
               </div>
@@ -137,30 +166,30 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Optativas */}
-            <div className="xl:col-span-3 bg-white p-8 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+            <div className="xl:col-span-3 bg-white p-6 md:p-8 rounded-[20px] border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h4 className="text-lg font-bold text-slate-900 tracking-tight">Rutas Sugeridas</h4>
-                  <p className="text-xs text-slate-500 font-medium mt-1">Basado en tus materias aprobadas</p>
+                  <p className="text-xs text-slate-500 font-medium mt-1">Basado en materias aprobadas</p>
                 </div>
                 <Link to="/rutas" className="text-[11px] font-bold text-slate-900 border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50 transition-colors">Ver todas</Link>
               </div>
               
               <div className="space-y-3">
                 {materiasSugeridas.map((materia, index) => (
-                  <div key={index} className="group flex justify-between items-center p-4 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer">
+                  <div key={index} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-[10px] font-black text-slate-400 tracking-tighter">
+                      <div className="w-10 h-10 shrink-0 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-[10px] font-black text-slate-400 tracking-tighter">
                         {materia.ruta.substring(0,2).toUpperCase()}
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{materia.clave}</p>
-                        <p className="text-sm font-bold text-slate-900 group-hover:text-slate-700 transition-colors">{materia.nombre}</p>
+                        <p className="text-sm font-bold text-slate-900 group-hover:text-slate-700 transition-colors line-clamp-1">{materia.nombre}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                       <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider">{materia.ruta}</span>
-                      <ChevronRightIcon className="text-slate-300 group-hover:text-slate-600 transition-colors" />
+                      <ChevronRightIcon className="text-slate-300 group-hover:text-slate-600 transition-colors hidden sm:block" />
                     </div>
                   </div>
                 ))}
@@ -191,9 +220,14 @@ const SidebarLink = ({ title, icon, active }: { title: string; icon: React.React
   </Link>
 );
 
-// --- ICONOS SVG (Estilo Feather Icons / Heroicons Minimalistas) ---
-// Todos son SVGs puros, lo que hace que el diseño se vea ultra limpio y profesional.
-
+// --- ICONOS SVG ---
+// Añadí el icono de menú (hamburguesa) y la X (cerrar)
+const MenuIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+);
+const XIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+);
 const BarChartIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
 );
