@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KardexController;
+use App\Http\Controllers\DashboardController;
 
 // Rutas Públicas (Las que usa React para acceder)
 Route::post('/registro', [AuthController::class, 'registrar']);
@@ -20,4 +21,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // LA NUEVA RUTA DEL KARDEX (¡Ahora sí está bien puesta!)
     Route::post('/kardex/procesar', [KardexController::class, 'procesar']);
 
+    Route::get('/dashboard', [DashboardController::class, 'resumen']);
 });
