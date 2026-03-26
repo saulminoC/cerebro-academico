@@ -1,15 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   // Estado para controlar el sidebar en móviles
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // --- NUEVOS ESTADOS PARA EL KARDEX ---
+  const [subiendo, setSubiendo] = useState(false);
+  const [mensajeKardex, setMensajeKardex] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const materiasSugeridas = [
     { clave: 'IACC 001', nombre: 'Inteligencia Artificial I', tipo: 'Optativa', ruta: 'IA' },
     { clave: 'CCYT 005', nombre: 'Criptografía Aplicada', tipo: 'Optativa', ruta: 'Seguridad' },
     { clave: 'DESW 003', nombre: 'Desarrollo Web Fullstack', tipo: 'Optativa', ruta: 'Desarrollo' },
   ];
+
+  // --- FUNCIÓN PARA SUBIR EL KARDEX A LARAVEL ---
+  const manejarSubidaKardex = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      setMensajeKardex('¡Ey compa! Solo se aceptan archivos PDF.');
+      return;
+    }
+
+    setSubiendo(true);
+    setMensajeKardex('Cerebro leyendo el Kardex...');
+
+    const formData = new FormData();
+    formData.append('kardex', file);
+
+    const token = localStorage.getItem('token');
+
+    try {
+      const respuesta = await fetch('http://localhost:8000/api/kardex/procesar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}` 
+        },
+        body: formData
+      });
+
+      const datos = await respuesta.json();
+
+      if (respuesta.ok) {
+        setMensajeKardex(`¡Éxito! El Cerebro encontró y registró ${datos.materias_encontradas} materias aprobadas.`);
+      } else {
+        setMensajeKardex(datos.mensaje || 'Hubo un error al procesar el Kardex.');
+      }
+    } catch (error) {
+      setMensajeKardex('Error de conexión con el servidor de Laravel.');
+    } finally {
+      setSubiendo(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-[#F9FAFB] flex font-sans text-slate-900 overflow-hidden selection:bg-cyan-100">
@@ -153,16 +200,42 @@ const Dashboard: React.FC = () => {
           {/* SECCIÓN INFERIOR */}
           <section className="grid grid-cols-1 xl:grid-cols-5 gap-6">
             
-            {/* Zona de Carga */}
-            <div className="xl:col-span-2 bg-slate-50/50 p-8 md:p-10 rounded-[20px] border border-dashed border-slate-300 flex flex-col items-center justify-center text-center group hover:bg-slate-50 transition-colors">
-              <div className="w-14 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
-                <UploadCloudIcon />
+            {/* Zona de Carga (AHORA SÍ, CONECTADA) */}
+            <div className="xl:col-span-2 flex flex-col gap-4">
+              
+              {/* MENSAJE DE AVISO */}
+              {mensajeKardex && (
+                 <div className="p-3 bg-blue-50 text-blue-700 text-sm font-bold rounded-xl border border-blue-200 text-center shadow-sm">
+                   {mensajeKardex}
+                 </div>
+              )}
+
+              <div className="bg-slate-50/50 p-8 md:p-10 rounded-[20px] border border-dashed border-slate-300 flex flex-col items-center justify-center text-center group hover:bg-slate-50 transition-colors h-full">
+                <div className="w-14 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
+                  <UploadCloudIcon />
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 tracking-tight mb-2">Actualizar Kardex</h4>
+                <p className="text-slate-500 text-sm mb-6 max-w-[250px] leading-relaxed">Arrastra tu PDF de Autoservicios aquí para re-calcular tu avance.</p>
+                
+                {/* BOTÓN MÁGICO */}
+                <button 
+                  onClick={() => fileInputRef.current?.click()} 
+                  disabled={subiendo}
+                  className={`px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-bold text-xs shadow-sm transition-all
+                    ${subiendo ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-300 hover:text-slate-900 hover:shadow'}`}
+                >
+                  {subiendo ? 'Procesando...' : 'Explorar archivos'}
+                </button>
+
+                {/* INPUT OCULTO */}
+                <input 
+                  type="file" 
+                  accept=".pdf" 
+                  className="hidden" 
+                  ref={fileInputRef} 
+                  onChange={manejarSubidaKardex} 
+                />
               </div>
-              <h4 className="text-lg font-bold text-slate-900 tracking-tight mb-2">Actualizar Kardex</h4>
-              <p className="text-slate-500 text-sm mb-6 max-w-[250px] leading-relaxed">Arrastra tu PDF de Autoservicios aquí para re-calcular tu avance.</p>
-              <button className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-bold text-xs shadow-sm hover:border-slate-300 hover:text-slate-900 transition-all">
-                Explorar archivos
-              </button>
             </div>
 
             {/* Optativas */}
@@ -205,23 +278,29 @@ const Dashboard: React.FC = () => {
 
 // --- COMPONENTES AUXILIARES ---
 
-const SidebarLink = ({ title, icon, active }: { title: string; icon: React.ReactNode; active?: boolean }) => (
-  <Link 
-    to="#" 
-    className={`flex items-center gap-3.5 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-      active 
-        ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200/60' 
-        : 'text-slate-500 hover:bg-slate-100/50 hover:text-slate-900 border border-transparent'
-    }`}
-  >
-    <div className={`${active ? 'text-slate-900' : 'text-slate-400'}`}>{icon}</div>
-    <span className="text-sm">{title}</span>
-    {active && <div className="w-1.5 h-1.5 bg-slate-900 rounded-full ml-auto" />}
-  </Link>
-);
+const SidebarLink = ({ title, icon, active, to }: { title: string; icon: React.ReactNode; active?: boolean; to?: string }) => {
+  const content = (
+    <>
+      <div className={`${active ? 'text-slate-900' : 'text-slate-400'}`}>{icon}</div>
+      <span className="text-sm">{title}</span>
+      {active && <div className="w-1.5 h-1.5 bg-slate-900 rounded-full ml-auto" />}
+    </>
+  );
+
+  const className = `flex items-center gap-3.5 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+    active 
+      ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200/60' 
+      : 'text-slate-500 hover:bg-slate-100/50 hover:text-slate-900 border border-transparent'
+  }`;
+
+  return to ? (
+    <Link to={to} className={className}>{content}</Link>
+  ) : (
+    <div className={className + " cursor-pointer"}>{content}</div>
+  );
+};
 
 // --- ICONOS SVG ---
-// Añadí el icono de menú (hamburguesa) y la X (cerrar)
 const MenuIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 );
