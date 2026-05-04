@@ -72,7 +72,7 @@ const Nosotros: React.FC = () => {
       {/* --- SECCIÓN 3: TEAM / FOOTER-LIKE --- */}
       <section className="bg-slate-50 py-32 px-6 border-t border-slate-100">
         <div className="container mx-auto text-center">
-            <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.4em] mb-12">Desarrollado en la FCC — BUAP</h2>
+            <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.4em] mb-12">Desarrollado por Saúl Mino y Angel Vazquez — BUAP</h2>
             <div className="flex justify-center gap-12 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                 {/* Aquí podrías poner logos o iconos minimalistas de tecnología */}
                 <span className="font-bold text-2xl text-slate-800 tracking-tighter italic">React</span>

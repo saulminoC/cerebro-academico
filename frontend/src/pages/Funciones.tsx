@@ -41,7 +41,7 @@ const Funciones: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-3 text-slate-700 font-medium">
                   <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full" /> 
-                  Privacidad local: Los datos no suben a ningún servidor.
+                  Privacidad local: Los datos se encriptan al subir al servidor.
                 </li>
               </ul>
             </div>

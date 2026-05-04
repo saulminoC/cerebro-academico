@@ -7,8 +7,8 @@ import Contacto from './pages/Contacto';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
-import MapaCurricular from './pages/MapaCurricular';
 import RutasOptativas from './pages/RutasOptativas';
+import MapaCurricular from './pages/MapaCurricular';
 
 // --- COMPONENTE AUXILIAR PARA CONTROLAR EL NAVBAR ---
 const RutasConLayout = () => {
@@ -33,7 +33,7 @@ const RutasConLayout = () => {
         <Route path="/registro" element={<Registro />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/mapa-curricular" element={<MapaCurricular />} />
-        
+
         {/* AQUÍ ESTÁ EL OTRO CAMBIO: path="/rutas" */}
         <Route path="/rutas" element={<RutasOptativas />} />
       </Routes>

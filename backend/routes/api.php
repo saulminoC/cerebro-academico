@@ -22,4 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kardex/procesar', [KardexController::class, 'procesar']);
 
     Route::get('/dashboard', [DashboardController::class, 'resumen']);
+
+    Route::get('/mapa-curricular', [DashboardController::class, 'mapa']);
 });

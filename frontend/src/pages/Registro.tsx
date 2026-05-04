@@ -56,8 +56,7 @@ const Registro: React.FC = () => {
     setCargando(true);
 
     try {
-      // Petición a la API de Laravel
-      const respuesta = await fetch('http://localhost:8000/api/registro', {
+      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/registro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +79,7 @@ const Registro: React.FC = () => {
         setError(datos.message || 'Error al registrar. Revisa tus datos.');
       }
     } catch (err) {
-      setError('No me pude conectar al servidor. ¿Ya prendiste Laravel?');
+      setError('No me pude conectar al servidor');
     } finally {
       setCargando(false);
     }
@@ -140,7 +139,7 @@ const Registro: React.FC = () => {
                 <div className="text-[8px] text-slate-500 font-bold leading-none">w</div>
               </div>
             </div>
-            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] ml-4 self-center italic">FCC Surveillance</p>
+            {/*<p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] ml-4 self-center italic">FCC Surveillance</p>*/}
           </div>
         </div>
       </section>

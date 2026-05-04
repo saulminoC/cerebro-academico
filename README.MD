@@ -97,7 +97,7 @@ El frontend estará disponible en `http://localhost:5173`.
 
 **Frontend — `.env.local`**
 ```env
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=https://cerebro.saulmino.sbs/api-backend/public/api
 ```
 
 **Backend — `.env`**

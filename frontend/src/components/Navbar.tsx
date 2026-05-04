@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
-  // Estado para controlar si el menú móvil está abierto o cerrado
+
   const [isOpen, setIsOpen] = useState(false);
 
   return (

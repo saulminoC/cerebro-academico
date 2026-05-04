@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     setCargando(true);
 
     try {
-      const respuesta = await fetch('http://localhost:8000/api/login', {
+      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
         setError(datos.message || datos.errors?.matricula?.[0] || 'Credenciales incorrectas, compa.');
       }
     } catch (err) {
-      setError('No me pude conectar al servidor de Laravel.');
+      setError('No me pude conectar al servidor');
     } finally {
       setCargando(false);
     }

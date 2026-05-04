@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
     if (!token) return;
 
     try {
-      const res = await fetch('http://localhost:8000/api/dashboard', {
+      const res = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/dashboard', {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -60,11 +60,11 @@ const Dashboard: React.FC = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const respuesta = await fetch('http://localhost:8000/api/kardex/procesar', {
+      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/kardex/procesar', {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json' // <--- Y esta línea aquí
+          'Accept': 'application/json'
         },
         body: formData
       });
@@ -121,7 +121,7 @@ const Dashboard: React.FC = () => {
           <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-4">Panel Principal</p>
           <SidebarLink title="Mi Avance" icon={<BarChartIcon />} active />
           <SidebarLink title="Análisis de Kardex" icon={<DocumentIcon />} />
-          <SidebarLink title="Mapa Curricular" icon={<MapIcon />} />
+          <SidebarLink title="Mapa Curricular" icon={<MapIcon />} to="/mapa-curricular" />
           
           <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-8">Planificación</p>
           <SidebarLink title="Rutas Optativas" icon={<TargetIcon />} to="/rutas-optativas" />
@@ -150,17 +150,17 @@ const Dashboard: React.FC = () => {
           
           <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-12">
             <div className="flex items-center gap-4 w-full md:w-auto">
-              <button 
+              <button
                 className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
                 onClick={() => setIsSidebarOpen(true)}
               >
                 <MenuIcon />
               </button>
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                {/*<div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Estado: Activo</p>
-                </div>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Estado: Activo</p>
+                </div>*/}
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Resumen Académico</h1>
               </div>
             </div>
@@ -174,7 +174,8 @@ const Dashboard: React.FC = () => {
                   className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-5 py-2.5 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-all font-medium placeholder:text-slate-400" 
                 />
               </div>
-              <button className="w-10 h-10 shrink-0 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors relative">
+              <button
+                className="w-10 h-10 shrink-0 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors relative">
                 <BellIcon />
               </button>
             </div>

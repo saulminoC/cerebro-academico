@@ -53,4 +53,32 @@ class DashboardController extends Controller
             'materias_sugeridas' => $sugeridas
         ]);
     }
+
+    // --- FUNCIÓN PARA EL MAPA CURRICULAR ---
+    public function mapa(Request $request)
+    {
+        $usuarioId = $request->user()->id;
+
+        // 1. Traemos todo el catálogo ordenado por semestre
+        $materias = DB::table('materias')->orderBy('semestre_sugerido')->get();
+
+        // 2. Traemos los avances del alumno y los indexamos por el ID de la materia
+        $avances = DB::table('avances')->where('user_id', $usuarioId)->get()->keyBy('materia_id');
+
+        // 3. Cruzamos los datos
+        $mapa = $materias->map(function($m) use ($avances) {
+            $estado = $avances->has($m->id) ? $avances->get($m->id)->estado : 'pendiente';
+            return [
+                'id' => $m->id,
+                'clave' => $m->clave,
+                'nombre' => $m->nombre,
+                'creditos' => $m->creditos,
+                'semestre' => $m->semestre_sugerido,
+                'estado' => $estado // 'aprobada' o 'pendiente'
+            ];
+        });
+
+        // 4. Agrupamos las materias por semestre (1, 2, 3...) para que React las dibuje en columnas
+        return response()->json($mapa->groupBy('semestre'));
+    }
 }

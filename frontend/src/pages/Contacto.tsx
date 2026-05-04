@@ -64,7 +64,7 @@ const Contacto: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre Completo</label>
-                      <input type="text" className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:border-cyan-500 transition-colors font-medium text-slate-900" placeholder="John Doe" />
+                      <input type="text" className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:border-cyan-500 transition-colors font-medium text-slate-900" placeholder="Erick Reynoso" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Matrícula (Opcional)</label>
