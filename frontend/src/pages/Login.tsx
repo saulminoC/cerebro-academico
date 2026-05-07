@@ -17,8 +17,7 @@ const Login: React.FC = () => {
     setCargando(true);
 
     try {
-      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/login', {
-        method: 'POST',
+const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/login`, {        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

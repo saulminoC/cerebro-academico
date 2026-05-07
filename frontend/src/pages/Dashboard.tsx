@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Sidebar from '../components/Sidebar'; // <-- Importamos el nuevo Sidebar Global
 
 const Dashboard: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -22,7 +23,7 @@ const Dashboard: React.FC = () => {
     if (!token) return;
 
     try {
-      const res = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/dashboard', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/dashboard`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -60,7 +61,7 @@ const Dashboard: React.FC = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/kardex/procesar', {
+      const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/kardex/procesar`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -72,7 +73,7 @@ const Dashboard: React.FC = () => {
       const datos = await respuesta.json();
 
       if (respuesta.ok) {
-        setMensajeKardex(`¡Éxito! El Cerebro registró ${datos.materias_encontradas} materias aprobadas.`);
+        setMensajeKardex(`¡Éxito! El Cerebro registró ${datos.materias_encontradas} materias cursadas.`);
         // ¡LA MAGIA! Volvemos a pedir los datos a Laravel para que las gráficas se actualicen solas
         cargarResumen();
       } else {
@@ -92,57 +93,12 @@ const Dashboard: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-[#F9FAFB] flex font-sans text-slate-900 overflow-hidden selection:bg-cyan-100">
       
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden transition-opacity"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* --- SIDEBAR --- */}
-      <aside className={`
-        fixed md:sticky top-0 left-0 h-screen z-50 w-[260px] bg-[#F9FAFB] border-r border-slate-200/60 
-        flex flex-col py-8 px-4 transition-transform duration-300
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
-        <div className="flex items-center justify-between mb-10 px-3">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-slate-950 rounded-[8px] flex items-center justify-center transition-transform group-hover:-rotate-3">
-              <span className="text-white font-bold text-lg">S</span>
-            </div>
-            <span className="text-[17px] font-bold tracking-tight text-slate-900">SSAAI</span>
-          </Link>
-          <button className="md:hidden text-slate-400 hover:text-slate-900" onClick={() => setIsSidebarOpen(false)}>
-            <XIcon />
-          </button>
-        </div>
-
-        <nav className="space-y-1 flex-1 overflow-y-auto">
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-4">Panel Principal</p>
-          <SidebarLink title="Mi Avance" icon={<BarChartIcon />} active />
-          <SidebarLink title="Análisis de Kardex" icon={<DocumentIcon />} />
-          <SidebarLink title="Mapa Curricular" icon={<MapIcon />} to="/mapa-curricular" />
-          
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-8">Planificación</p>
-          <SidebarLink title="Rutas Optativas" icon={<TargetIcon />} to="/rutas-optativas" />
-          <SidebarLink title="Tutorías Académicas" icon={<UsersIcon />} />
-        </nav>
-
-        <div className="mt-auto pt-6 px-3">
-          <div className="flex items-center gap-3 mb-4 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-slate-200/60 shadow-sm hover:shadow-md hover:shadow-slate-200/20">
-            <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-sm shrink-0">
-              {usuario.nombre ? usuario.nombre.substring(0,2).toUpperCase() : 'JD'}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold text-slate-900 truncate">{usuario.nombre || 'Alumno'} {usuario.apellidos || ''}</p>
-              <p className="text-[11px] text-slate-500 font-medium truncate">{usuario.matricula || '202XXXXXX'}</p>
-            </div>
-          </div>
-          <Link to="/login" className="w-full py-2 text-slate-400 hover:text-slate-900 rounded-lg font-bold text-[11px] uppercase tracking-wider text-center block transition-colors" onClick={() => localStorage.clear()}>
-            Cerrar Sesión
-          </Link>
-        </div>
-      </aside>
+      {/* --- SIDEBAR GLOBAL --- */}
+      <Sidebar 
+        isSidebarOpen={isSidebarOpen} 
+        setIsSidebarOpen={setIsSidebarOpen} 
+        usuario={usuario} 
+      />
 
       {/* --- ÁREA PRINCIPAL --- */}
       <main className="flex-1 overflow-y-auto bg-white md:rounded-tl-[32px] md:border-l md:border-t border-slate-200/60 md:shadow-[-10px_0_30px_rgb(0,0,0,0.02)] md:my-2 md:mr-2">
@@ -157,27 +113,8 @@ const Dashboard: React.FC = () => {
                 <MenuIcon />
               </button>
               <div>
-                {/*<div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Estado: Activo</p>
-                </div>*/}
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Resumen Académico</h1>
               </div>
-            </div>
-
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-1 md:flex-none">
-                <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input 
-                  type="text" 
-                  placeholder="Buscar clave..." 
-                  className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-5 py-2.5 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-all font-medium placeholder:text-slate-400" 
-                />
-              </div>
-              <button
-                className="w-10 h-10 shrink-0 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors relative">
-                <BellIcon />
-              </button>
             </div>
           </header>
 
@@ -300,39 +237,8 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// --- COMPONENTES AUXILIARES ---
-const SidebarLink = ({ title, icon, active, to }: { title: string; icon: React.ReactNode; active?: boolean; to?: string }) => {
-  const content = (
-    <>
-      <div className={`${active ? 'text-slate-900' : 'text-slate-400'}`}>{icon}</div>
-      <span className="text-sm">{title}</span>
-      {active && <div className="w-1.5 h-1.5 bg-slate-900 rounded-full ml-auto" />}
-    </>
-  );
-
-  const className = `flex items-center gap-3.5 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-    active 
-      ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200/60' 
-      : 'text-slate-500 hover:bg-slate-100/50 hover:text-slate-900 border border-transparent'
-  }`;
-
-  return to ? (
-    <Link to={to} className={className}>{content}</Link>
-  ) : (
-    <div className={className + " cursor-pointer"}>{content}</div>
-  );
-};
-
-// --- ICONOS SVG ---
+// --- ICONOS SVG (Solo se dejaron los que usa el panel principal) ---
 const MenuIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>);
-const XIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
-const BarChartIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>);
-const DocumentIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
-const MapIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>);
-const TargetIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>);
-const UsersIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>);
-const SearchIcon = ({ className }: { className?: string }) => (<svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>);
-const BellIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>);
 const TrendingUpIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>);
 const PieChartIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>);
 const BookIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>);

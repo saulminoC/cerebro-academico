@@ -9,6 +9,7 @@ import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import RutasOptativas from './pages/RutasOptativas';
 import MapaCurricular from './pages/MapaCurricular';
+import AnalisisKardex from './pages/AnalisisKardex';
 
 // --- COMPONENTE AUXILIAR PARA CONTROLAR EL NAVBAR ---
 const RutasConLayout = () => {
@@ -16,7 +17,7 @@ const RutasConLayout = () => {
   
   // Lista de rutas donde NO queremos el Navbar público
   // AQUÍ ESTÁ EL CAMBIO: Ya dice '/rutas'
-  const rutasSinNavbar = ['/login', '/registro', '/dashboard', '/mapa-curricular', '/rutas'];
+  const rutasSinNavbar = ['/login', '/registro', '/dashboard', '/mapa-curricular', '/rutas-optativas', '/analisis-kardex'];
   const mostrarNavbar = !rutasSinNavbar.includes(location.pathname);
 
   return (
@@ -35,7 +36,9 @@ const RutasConLayout = () => {
         <Route path="/mapa-curricular" element={<MapaCurricular />} />
 
         {/* AQUÍ ESTÁ EL OTRO CAMBIO: path="/rutas" */}
-        <Route path="/rutas" element={<RutasOptativas />} />
+        <Route path="/rutas-optativas" element={<RutasOptativas />} />
+
+        <Route path="/analisis-kardex" element={<AnalisisKardex />} />
       </Routes>
     </>
   );

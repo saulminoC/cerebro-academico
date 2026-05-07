@@ -1,137 +1,311 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+
+interface Materia {
+  id: number;
+  clave: string;
+  nombre: string;
+  creditos: number;
+  semestre: number;
+  estado: 'aprobada' | 'cursando' | 'pendiente';
+}
 
 const MapaCurricular: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [mapa, setMapa] = useState<Record<string, any[]>>({});
+  const [mapa, setMapa] = useState<Record<string, Materia[]>>({});
   const [cargando, setCargando] = useState(true);
+  const [usuario, setUsuario] = useState({ nombre: '', apellidos: '', matricula: '' });
+  const [filtro, setFiltro] = useState<'todas' | 'aprobada' | 'cursando' | 'pendiente'>('todas');
 
   useEffect(() => {
-    const cargarMapa = async () => {
+    const cargarDatos = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
-
       try {
-        const res = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/mapa-curricular', {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setMapa(data);
-        }
+        const [resMapa, resUser] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_URL}/mapa-curricular`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+          }),
+          fetch(`${import.meta.env.VITE_API_URL}/user`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+          })
+        ]);
+        if (resMapa.ok) setMapa(await resMapa.json());
+        if (resUser.ok) setUsuario(await resUser.json());
       } catch (e) {
-        console.error("Error al cargar el mapa", e);
+        console.error('Error al cargar el mapa', e);
       } finally {
         setCargando(false);
       }
     };
-
-    cargarMapa();
+    cargarDatos();
   }, []);
 
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const semestres = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // Los 9 semestres de la carrera
+  // Obligatorias = semestres 1–8 | Optativas = semestre_sugerido >= 9
+  const materiasObligatorias = [1,2,3,4,5,6,7,8].flatMap(s => mapa[s] || []);
+  const materiasOptativas: Materia[] = Object.entries(mapa)
+    .filter(([sem]) => parseInt(sem) >= 9)
+    .flatMap(([, mats]) => mats);
+
+  const aprobadasObligatorias = materiasObligatorias.filter(m => m.estado === 'aprobada').length;
+  const cursandoObligatorias  = materiasObligatorias.filter(m => m.estado === 'cursando').length;
+  const aprobadasOptativas    = materiasOptativas.filter(m => m.estado === 'aprobada').length;
+  const cursandoOptativas     = materiasOptativas.filter(m => m.estado === 'cursando').length;
+  const pctObligatorias = materiasObligatorias.length > 0
+    ? Math.round((aprobadasObligatorias / materiasObligatorias.length) * 100) : 0;
+
+  const getCardStyle = (estado: string) => {
+    if (estado === 'aprobada') return {
+      card: 'bg-emerald-50 border-emerald-200',
+      clave: 'text-emerald-600', nombre: 'text-emerald-900', creditos: 'text-emerald-600',
+      badgeBg: 'bg-emerald-500', badgeIcon: <CheckIcon />,
+    };
+    if (estado === 'cursando') return {
+      card: 'bg-blue-50 border-blue-200',
+      clave: 'text-blue-600', nombre: 'text-blue-900', creditos: 'text-blue-600',
+      badgeBg: 'bg-blue-500', badgeIcon: <PulseIcon />,
+    };
+    return {
+      card: 'bg-white border-slate-200 hover:border-slate-300',
+      clave: 'text-slate-400', nombre: 'text-slate-700', creditos: 'text-slate-400',
+      badgeBg: null, badgeIcon: null,
+    };
+  };
+
+  const filtrarMaterias = (mats: Materia[]) =>
+    filtro === 'todas' ? mats : mats.filter(m => m.estado === filtro);
 
   return (
-    <div className="w-full min-h-screen bg-[#F9FAFB] flex font-sans text-slate-900 overflow-hidden">
-      
-      {/* SIDEBAR (Mismo del Dashboard) */}
-      <aside className={`fixed md:sticky top-0 left-0 h-screen z-50 w-[260px] bg-[#F9FAFB] border-r border-slate-200/60 flex flex-col py-8 px-4 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="flex items-center justify-between mb-10 px-3">
-          <Link to="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-slate-950 rounded-[8px] flex items-center justify-center transition-transform group-hover:-rotate-3">
-              <span className="text-white font-bold text-lg">S</span>
+    <div className="w-full min-h-screen bg-[#F9FAFB] flex font-sans text-slate-900">
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} usuario={usuario} />
+
+      <main className="flex-1 bg-white md:rounded-tl-[32px] md:border-l md:border-t border-slate-200/60 md:shadow-[-10px_0_30px_rgb(0,0,0,0.02)] md:m-2 h-[calc(100vh-16px)] overflow-y-auto">
+
+        {/* ── Header sticky ── */}
+        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 px-8 md:px-12 py-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Mapa Curricular</h1>
+              <p className="text-[13px] text-slate-500 mt-0.5">
+                Licenciatura en Ciencias de la Computación · Plan Minerva 2016
+              </p>
             </div>
-            <span className="text-[17px] font-bold tracking-tight text-slate-900">SSAAI</span>
-          </Link>
-        </div>
-
-        <nav className="space-y-1 flex-1 overflow-y-auto">
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 mt-4">Panel Principal</p>
-          <Link to="/dashboard" className="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-slate-100/50 hover:text-slate-900 transition-all">
-            <BarChartIcon /> <span className="text-sm">Mi Avance</span>
-          </Link>
-          <Link to="/mapa-curricular" className="flex items-center gap-3.5 px-3 py-2.5 rounded-lg bg-white text-slate-900 font-bold shadow-sm border border-slate-200/60 transition-all">
-            <MapIcon /> <span className="text-sm">Mapa Curricular</span>
-            <div className="w-1.5 h-1.5 bg-slate-900 rounded-full ml-auto" />
-          </Link>
-        </nav>
-
-        <div className="mt-auto pt-6 px-3">
-          <Link to="/login" className="w-full py-2 text-slate-400 hover:text-slate-900 rounded-lg font-bold text-[11px] uppercase tracking-wider text-center block transition-colors" onClick={() => localStorage.clear()}>
-            Cerrar Sesión
-          </Link>
-        </div>
-      </aside>
-
-      {/* ÁREA PRINCIPAL */}
-      <main className="flex-1 overflow-y-auto bg-white md:rounded-tl-[32px] md:border-l md:border-t border-slate-200/60 md:shadow-[-10px_0_30px_rgb(0,0,0,0.02)] md:my-2 md:mr-2">
-        <div className="p-6 md:p-12">
-          
-          <header className="mb-10">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Mapa Curricular</h1>
-            <p className="text-slate-500 text-sm mt-1">Visualiza tu progreso en el plan de estudios Minerva 2016.</p>
-          </header>
-
-          {cargando ? (
-            <p className="text-slate-500 font-bold animate-pulse">Cargando mapa...</p>
-          ) : (
-            <div className="flex gap-6 overflow-x-auto pb-8 snap-x">
-              {semestres.map((semestre) => (
-                <div key={semestre} className="min-w-[280px] w-[280px] shrink-0 snap-start">
-                  <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="font-bold text-slate-900">Semestre {semestre}</h3>
-                    <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">
-                      {mapa[semestre]?.length || 0} Materias
-                    </span>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3">
-                    {mapa[semestre]?.map((materia) => (
-                      <div 
-                        key={materia.id} 
-                        className={`p-4 rounded-xl border transition-all ${
-                          materia.estado === 'aprobada' 
-                            ? 'bg-emerald-50 border-emerald-200 shadow-sm' 
-                            : 'bg-white border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <span className={`text-[10px] font-black uppercase tracking-widest ${materia.estado === 'aprobada' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                            {materia.clave}
-                          </span>
-                          {materia.estado === 'aprobada' && (
-                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                              <CheckIcon />
-                            </div>
-                          )}
-                        </div>
-                        <h4 className={`text-sm font-bold leading-tight ${materia.estado === 'aprobada' ? 'text-emerald-900' : 'text-slate-700'}`}>
-                          {materia.nombre}
-                        </h4>
-                        <p className={`text-xs mt-3 font-semibold ${materia.estado === 'aprobada' ? 'text-emerald-700' : 'text-slate-400'}`}>
-                          {materia.creditos} Créditos
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <StatChip dot="bg-emerald-500" label={`${aprobadasObligatorias} obligatorias aprobadas`} />
+              {cursandoObligatorias > 0 && <StatChip dot="bg-blue-500" label={`${cursandoObligatorias} en curso`} />}
+              <StatChip dot="bg-violet-500" label={`${aprobadasOptativas} optativas aprobadas`} />
+              {cursandoOptativas > 0 && <StatChip dot="bg-blue-400" label={`${cursandoOptativas} optativas en curso`} />}
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 min-w-[140px]">
+                <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${pctObligatorias}%` }} />
                 </div>
-              ))}
+                <span className="text-[12px] font-black text-slate-700">{pctObligatorias}%</span>
+              </div>
             </div>
-          )}
+          </div>
 
+          {/* Filtros */}
+          <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-[12px] border border-slate-200/50 w-fit">
+            {(['todas', 'aprobada', 'cursando', 'pendiente'] as const).map(f => (
+              <button key={f} onClick={() => setFiltro(f)}
+                className={`px-4 py-1.5 rounded-[8px] text-[12px] font-bold transition-all ${
+                  filtro === f ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60' : 'text-slate-500 hover:text-slate-700'
+                }`}>
+                {{ todas:'Todas', aprobada:'Aprobadas', cursando:'En Curso', pendiente:'Pendientes' }[f]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="px-6 md:px-10 py-8 space-y-10">
+          {cargando ? (
+            <div className="flex items-center gap-3 mt-10">
+              <div className="w-5 h-5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-bold text-slate-500">Cargando mapa curricular...</p>
+            </div>
+          ) : (
+            <>
+              {/* ── NIVEL BÁSICO semestres 1–4 ── */}
+              <SectionHeader
+                label="Nivel Básico"
+                labelColor="bg-slate-100 text-slate-600 border-slate-200"
+                subtitle="Semestres 1 – 4 · Fundamentos de la disciplina"
+              />
+              <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+                {[1,2,3,4].map(sem => (
+                  <SemestreCol key={sem} semestre={sem} materias={mapa[sem] || []}
+                    filtradas={filtrarMaterias(mapa[sem] || [])} getCardStyle={getCardStyle} />
+                ))}
+              </div>
+
+              {/* ── NIVEL FORMATIVO semestres 5–8 ── */}
+              <SectionHeader
+                label="Nivel Formativo"
+                labelColor="bg-orange-50 text-orange-700 border-orange-200"
+                subtitle="Semestres 5 – 8 · Especialización y proyectos"
+              />
+              <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+                {[5,6,7,8].map(sem => (
+                  <SemestreCol key={sem} semestre={sem} materias={mapa[sem] || []}
+                    filtradas={filtrarMaterias(mapa[sem] || [])} getCardStyle={getCardStyle} />
+                ))}
+              </div>
+
+              {/* ── OPTATIVAS DESIT ── */}
+              {materiasOptativas.length > 0 && (
+                <>
+                  <SectionHeader
+                    label="Optativas DESIT"
+                    labelColor="bg-violet-50 text-violet-700 border-violet-200"
+                    subtitle={`Acredita 5 de ${materiasOptativas.length} materias disponibles`}
+                    badge={`${aprobadasOptativas + cursandoOptativas} / ${materiasOptativas.length}`}
+                  />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                    {filtrarMaterias(materiasOptativas).length > 0 ? (
+                      filtrarMaterias(materiasOptativas).map(materia => {
+                        const cfg = getCardStyle(materia.estado);
+                        return (
+                          <div key={materia.id} className={`p-3.5 rounded-xl border transition-all ${cfg.card}`}>
+                            <div className="flex justify-between items-start mb-1.5">
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${cfg.clave}`}>
+                                {materia.clave}
+                              </span>
+                              {cfg.badgeBg && (
+                                <div className={`w-4 h-4 ${cfg.badgeBg} rounded-full flex items-center justify-center shrink-0`}>
+                                  {cfg.badgeIcon}
+                                </div>
+                              )}
+                            </div>
+                            <h4 className={`text-[12px] font-bold leading-snug ${cfg.nombre}`}>{materia.nombre}</h4>
+                            <p className={`text-[11px] mt-2 font-semibold ${cfg.creditos}`}>{materia.creditos} créditos</p>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="col-span-full p-6 text-center rounded-xl border border-dashed border-slate-200">
+                        <p className="text-[13px] text-slate-400 font-medium">Sin materias con este filtro</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* ── Leyenda ── */}
+              <div className="flex flex-wrap items-center gap-5 pt-6 border-t border-slate-100">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Leyenda</span>
+                {[
+                  { bg: 'bg-emerald-100 border-emerald-300', label: 'Aprobada' },
+                  { bg: 'bg-blue-100 border-blue-300', label: 'En Curso' },
+                  { bg: 'bg-white border-slate-300', label: 'Pendiente' },
+                ].map(({ bg, label }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <div className={`w-3 h-3 rounded-sm border ${bg}`} />
+                    <span className="text-[12px] text-slate-600 font-medium">{label}</span>
+                  </div>
+                ))}
+                <div className="ml-auto text-[11px] text-slate-400 font-medium">Plan Minerva 2016 · FCC BUAP</div>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>
   );
 };
 
-// ICONOS SVG
-const BarChartIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>);
-const MapIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>);
-const CheckIcon = () => (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>);
+// ── Sub-componentes ─────────────────────────────────────
+
+const SemestreCol: React.FC<{
+  semestre: number;
+  materias: Materia[];
+  filtradas: Materia[];
+  getCardStyle: (e: string) => any;
+}> = ({ semestre, materias, filtradas, getCardStyle }) => {
+  const aprobadas = materias.filter(m => m.estado === 'aprobada').length;
+  const cursando  = materias.filter(m => m.estado === 'cursando').length;
+  const completo  = aprobadas === materias.length && materias.length > 0;
+  const pct = materias.length > 0 ? Math.round((aprobadas / materias.length) * 100) : 0;
+
+  return (
+    <div className="min-w-[240px] w-[240px] shrink-0 snap-start flex flex-col gap-2">
+      <div className={`rounded-xl p-3 border ${completo ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200/60'}`}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            {completo && <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center"><CheckIcon /></div>}
+            <span className={`text-[13px] font-black ${completo ? 'text-emerald-800' : 'text-slate-700'}`}>
+              Semestre {semestre}
+            </span>
+          </div>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${completo ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+            {aprobadas}/{materias.length}
+          </span>
+        </div>
+        <div className="h-1 bg-slate-200 rounded-full overflow-hidden">
+          <div className={`h-full rounded-full transition-all duration-500 ${cursando > 0 && !completo ? 'bg-blue-400' : 'bg-emerald-500'}`}
+            style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {filtradas.length > 0 ? filtradas.map(materia => {
+          const cfg = getCardStyle(materia.estado);
+          return (
+            <div key={materia.id} className={`p-3.5 rounded-xl border transition-all ${cfg.card}`}>
+              <div className="flex justify-between items-start mb-1.5">
+                <span className={`text-[10px] font-black uppercase tracking-widest ${cfg.clave}`}>{materia.clave}</span>
+                {cfg.badgeBg && (
+                  <div className={`w-4 h-4 ${cfg.badgeBg} rounded-full flex items-center justify-center shrink-0`}>
+                    {cfg.badgeIcon}
+                  </div>
+                )}
+              </div>
+              <h4 className={`text-[13px] font-bold leading-snug ${cfg.nombre}`}>{materia.nombre}</h4>
+              <p className={`text-[11px] mt-2 font-semibold ${cfg.creditos}`}>{materia.creditos} créditos</p>
+            </div>
+          );
+        }) : (
+          <div className="p-4 text-center rounded-xl border border-dashed border-slate-200">
+            <p className="text-[11px] text-slate-400 font-medium">Sin resultados</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SectionHeader: React.FC<{
+  label: string; labelColor: string; subtitle: string; badge?: string;
+}> = ({ label, labelColor, subtitle, badge }) => (
+  <div className="flex items-center gap-3">
+    <div className={`px-3 py-1 rounded-lg border text-[11px] font-black uppercase tracking-wider ${labelColor}`}>
+      {label}
+    </div>
+    <p className="text-[13px] text-slate-500 font-medium">{subtitle}</p>
+    {badge && (
+      <span className="ml-auto text-[12px] font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-lg">
+        {badge}
+      </span>
+    )}
+  </div>
+);
+
+const StatChip: React.FC<{ dot: string; label: string }> = ({ dot, label }) => (
+  <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2">
+    <div className={`w-2 h-2 rounded-full ${dot}`} />
+    <span className="text-[12px] font-bold text-slate-600">{label}</span>
+  </div>
+);
+
+const CheckIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const PulseIcon = () => (
+  <svg width="6" height="6" viewBox="0 0 6 6" fill="white">
+    <circle cx="3" cy="3" r="2.5" />
+  </svg>
+);
 
 export default MapaCurricular;

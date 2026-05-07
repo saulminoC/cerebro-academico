@@ -18,10 +18,14 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // LA NUEVA RUTA DEL KARDEX (¡Ahora sí está bien puesta!)
+
     Route::post('/kardex/procesar', [KardexController::class, 'procesar']);
 
     Route::get('/dashboard', [DashboardController::class, 'resumen']);
 
     Route::get('/mapa-curricular', [DashboardController::class, 'mapa']);
+
+    Route::get('/rutas-progreso', [DashboardController::class, 'rutasProgreso']);
+
+    Route::get('/historial-kardex', [DashboardController::class, 'historialDetallado']);
 });

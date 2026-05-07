@@ -56,8 +56,7 @@ const Registro: React.FC = () => {
     setCargando(true);
 
     try {
-      const respuesta = await fetch('https://ssaai.saulmino.sbs/api-backend/public/api/registro', {
-        method: 'POST',
+const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/registro`, {        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
